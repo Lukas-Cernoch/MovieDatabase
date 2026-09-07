@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.JsonPatch;
 using MovieDatabase.Data;
 using MovieDatabase.Domain.Dto;
 using MovieDatabase.Domain.Entities;
@@ -71,6 +72,66 @@ namespace MovieDatabase.Controllers
 
             var createdDto = _mapper.Map<MovieDto>(entity);
             return CreatedAtAction(nameof(GetByImdbId), new { imdbId = entity.ImdbId }, createdDto);
+        }
+
+        [HttpPut("{imdbId}")]
+        public async Task<ActionResult<MovieDto>> Put(string imdbId, MovieDto movieDto)
+        {
+            if (movieDto == null)
+            {
+                return BadRequest();
+            }
+
+            // Ensure route id and body id (if present) are consistent
+            if (!string.IsNullOrWhiteSpace(movieDto.ImdbId) && movieDto.ImdbId != imdbId)
+            {
+                return BadRequest("ImdbId in body must match route imdbId.");
+            }
+
+            var existing = await _context.Movies.FindAsync(imdbId);
+            if (existing == null)
+            {
+                // create
+                movieDto.ImdbId = imdbId;
+                var entity = _mapper.Map<MovieEntity>(movieDto);
+                _context.Movies.Add(entity);
+                await _context.SaveChangesAsync();
+                var createdDto = _mapper.Map<MovieDto>(entity);
+                return CreatedAtAction(nameof(GetByImdbId), new { imdbId = entity.ImdbId }, createdDto);
+            }
+
+            // update
+            _mapper.Map(movieDto, existing);
+            existing.ImdbId = imdbId; // enforce key
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPatch("{imdbId}")]
+        public async Task<IActionResult> Patch(string imdbId, [FromBody] JsonPatchDocument<MovieDto> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                return BadRequest();
+            }
+
+            var existing = await _context.Movies.FindAsync(imdbId);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            var dtoToPatch = _mapper.Map<MovieDto>(existing);
+            patchDoc.ApplyTo(dtoToPatch, ModelState);
+            if (!TryValidateModel(dtoToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(dtoToPatch, existing);
+            existing.ImdbId = imdbId; // enforce key
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
         [HttpDelete("{imdbId}")]

@@ -5,6 +5,7 @@ using MovieDatabase.Data;
 using System.Runtime.InteropServices;
 using MovieDatabase.Domain.Entities;
 using MovieDatabase.Domain.Dto;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace MovieDatabase.Controllers
 {
@@ -30,7 +31,7 @@ namespace MovieDatabase.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DirectorDto>> GetById(int id)
+        public async Task<ActionResult<DirectorDto>> GetById(Guid id)
         {
             var director = await _context.Directors.FindAsync(id);
             if (director == null)
@@ -61,6 +62,29 @@ namespace MovieDatabase.Controllers
                 return NotFound();
             }
             _context.Directors.Remove(director);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdatePartial(Guid id, [FromBody] JsonPatchDocument<DirectorDto> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                return BadRequest();
+            }
+            var directorEntity = await _context.Directors.FindAsync(id);
+            if (directorEntity == null)
+            {
+                return NotFound();
+            }
+            var directorDto = _mapper.Map<DirectorDto>(directorEntity);
+            patchDoc.ApplyTo(directorDto, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _mapper.Map(directorDto, directorEntity);
             await _context.SaveChangesAsync();
             return NoContent();
         }
