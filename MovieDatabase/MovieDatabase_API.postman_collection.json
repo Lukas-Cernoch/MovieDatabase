@@ -1,0 +1,134 @@
+{
+  "info": {
+    "_postman_id": "8406873b-977d-46ae-8ea7-2dc6b2b18e69",
+    "name": "MovieDatabase_API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57849252"
+  },
+  "item": [
+    {
+      "name": "PostDirector",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Christopher Nolan\",\r\n  \"dateOfBirth\": \"1970-07-30\",\r\n  \"nationality\": \"UK\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5260/directors",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5260",
+          "path": [
+            "directors"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetDirector",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5260/directors",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5260",
+          "path": [
+            "directors"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostMovie",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"imdbId\": \"tt0816692\",\r\n  \"title\": \"Interstellar\",\r\n  \"releaseYear\": 2014,\r\n  \"genre\": \"Sci-Fi\",\r\n  \"runtimeMinutes\": 169,\r\n  \"directorId\": \"5545e661-6f9c-4e53-b1e7-ad74d35411cc\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5260/movies",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5260",
+          "path": [
+            "movies"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PatchMovie",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "[\r\n  {\r\n    \"op\": \"replace\",\r\n    \"path\": \"/genre\",\r\n    \"value\": \"Sci-Fi / Drama\"\r\n  },\r\n  {\r\n    \"op\": \"replace\",\r\n    \"path\": \"/runtimeMinutes\",\r\n    \"value\": 170\r\n  }\r\n]\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5260/movies/tt0816692",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5260",
+          "path": [
+            "movies",
+            "tt0816692"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DeleteMovie",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5260/movies/tt0816692",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5260",
+          "path": [
+            "movies",
+            "tt0816692"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
