@@ -7,11 +7,21 @@ using FluentValidation.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. REGISTRACE SLUŽEB ---
-
 // Přidání podpory pro klasické Kontrolery (MovieController, DirectorController)
 builder.Services.AddControllers().AddNewtonsoftJson();
-
 builder.Services.AddFluentValidationAutoValidation(); // Zapne automatické vracení HTTP 400 při chybě
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        // Výchozí port, na kterém za chvíli poběží náš Vite/React frontend
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(); // Najde všechny validátory v projektu
 
 // Přidání Swaggeru (Swashbuckle) pro dokumentaci API
@@ -32,7 +42,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 
 // --- 2. NASTAVENÍ HTTP PIPELINE ---
-
 // Aktivace Swaggeru pouze ve vývojovém prostředí
 if (app.Environment.IsDevelopment())
 {
@@ -40,8 +49,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Zde je přidaná aktivace CORS. Musí být před MapControllers!
+app.UseCors("AllowFrontend");
+
 // Spárování URL adres s našimi kontrolery
 app.MapControllers();
 
 app.Run();
+
 public partial class Program { }
